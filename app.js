@@ -2,6 +2,67 @@
 
 // Datos
 let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+
+// Cargar tareas predeterminadas si está vacío
+if (tareas.length === 0) {
+    const hoy = new Date();
+    const proximaFecha = (meses) => {
+        const fecha = new Date(hoy);
+        fecha.setMonth(fecha.getMonth() + meses);
+        return fecha.toISOString().split('T')[0];
+    };
+
+    tareas = [
+        // HVAC
+        { id: 1, titulo: 'Cambiar filtros HVAC', categoria: 'HVAC', frecuencia: 'trimestral', proximaFecha: proximaFecha(0), costo: 45, notas: 'Filtros MERV 11 o superior', completada: false },
+        { id: 2, titulo: 'Mantenimiento preventivo HVAC', categoria: 'HVAC', frecuencia: 'semestral', proximaFecha: proximaFecha(2), costo: 150, notas: 'Llamar técnico certificado', completada: false },
+        { id: 3, titulo: 'Limpiar conductos de aire', categoria: 'HVAC', frecuencia: 'anual', proximaFecha: proximaFecha(6), costo: 400, notas: 'Servicio profesional', completada: false },
+        
+        // Plomería
+        { id: 4, titulo: 'Revisar calentador de agua', categoria: 'Plomería', frecuencia: 'semestral', proximaFecha: proximaFecha(3), costo: 0, notas: 'Verificar ánodo y presión', completada: false },
+        { id: 5, titulo: 'Drenar calentador de agua', categoria: 'Plomería', frecuencia: 'anual', proximaFecha: proximaFecha(6), costo: 0, notas: 'Eliminar sedimentos', completada: false },
+        { id: 6, titulo: 'Inspeccionar válvulas de agua', categoria: 'Plomería', frecuencia: 'anual', proximaFecha: proximaFecha(8), costo: 0, notas: 'Verificar que abren y cierran bien', completada: false },
+        { id: 7, titulo: 'Limpiar sifones de lavabos', categoria: 'Plomería', frecuencia: 'trimestral', proximaFecha: proximaFecha(1), costo: 0, notas: 'Prevenir obstrucciones', completada: false },
+        
+        // Eléctrico
+        { id: 8, titulo: 'Probar detectores de humo', categoria: 'Eléctrico', frecuencia: 'mensual', proximaFecha: proximaFecha(0), costo: 0, notas: 'Presionar botón de prueba', completada: false },
+        { id: 9, titulo: 'Cambiar baterías detectores', categoria: 'Eléctrico', frecuencia: 'anual', proximaFecha: proximaFecha(6), costo: 20, notas: 'Baterías 9V', completada: false },
+        { id: 10, titulo: 'Revisar panel eléctrico', categoria: 'Eléctrico', frecuencia: 'anual', proximaFecha: proximaFecha(10), costo: 0, notas: 'Buscar señales de corrosión', completada: false },
+        { id: 11, titulo: 'Probar interruptores GFCI', categoria: 'Eléctrico', frecuencia: 'mensual', proximaFecha: proximaFecha(0), costo: 0, notas: 'Baños y cocina', completada: false },
+        
+        // Exterior
+        { id: 12, titulo: 'Limpiar canaletas', categoria: 'Exterior', frecuencia: 'semestral', proximaFecha: proximaFecha(2), costo: 150, notas: 'Primavera y otoño', completada: false },
+        { id: 13, titulo: 'Inspeccionar techo', categoria: 'Exterior', frecuencia: 'anual', proximaFecha: proximaFecha(4), costo: 0, notas: 'Buscar tejas dañadas', completada: false },
+        { id: 14, titulo: 'Revisar sellado de ventanas', categoria: 'Exterior', frecuencia: 'anual', proximaFecha: proximaFecha(5), costo: 50, notas: 'Re-sellar si necesario', completada: false },
+        { id: 15, titulo: 'Lavar exterior de casa', categoria: 'Exterior', frecuencia: 'anual', proximaFecha: proximaFecha(3), costo: 300, notas: 'Pressure washing', completada: false },
+        { id: 16, titulo: 'Revisar deck/patio', categoria: 'Exterior', frecuencia: 'anual', proximaFecha: proximaFecha(4), costo: 0, notas: 'Buscar tablas podridas', completada: false },
+        
+        // Jardín
+        { id: 17, titulo: 'Fertilizar césped', categoria: 'Jardín', frecuencia: 'trimestral', proximaFecha: proximaFecha(1), costo: 80, notas: 'Programa estacional', completada: false },
+        { id: 18, titulo: 'Airear césped', categoria: 'Jardín', frecuencia: 'anual', proximaFecha: proximaFecha(5), costo: 120, notas: 'Mejor en otoño', completada: false },
+        { id: 19, titulo: 'Podar árboles y arbustos', categoria: 'Jardín', frecuencia: 'anual', proximaFecha: proximaFecha(7), costo: 250, notas: 'Finales de invierno', completada: false },
+        { id: 20, titulo: 'Revisar sistema de riego', categoria: 'Jardín', frecuencia: 'semestral', proximaFecha: proximaFecha(2), costo: 0, notas: 'Antes de temporada', completada: false },
+        
+        // Electrodomésticos
+        { id: 21, titulo: 'Limpiar filtro lavadora', categoria: 'Electrodomésticos', frecuencia: 'mensual', proximaFecha: proximaFecha(0), costo: 0, notas: 'Filtro de pelusa y bomba', completada: false },
+        { id: 22, titulo: 'Limpiar refrigerador - bobinas', categoria: 'Electrodomésticos', frecuencia: 'semestral', proximaFecha: proximaFecha(3), costo: 0, notas: 'Bobinas traseras', completada: false },
+        { id: 23, titulo: 'Limpiar lavavajillas', categoria: 'Electrodomésticos', frecuencia: 'mensual', proximaFecha: proximaFecha(0), costo: 5, notas: 'Ciclo con vinagre', completada: false },
+        { id: 24, titulo: 'Limpiar campana extractora', categoria: 'Electrodomésticos', frecuencia: 'trimestral', proximaFecha: proximaFecha(1), costo: 0, notas: 'Filtros de grasa', completada: false },
+        { id: 25, titulo: 'Limpiar secadora - conducto', categoria: 'Electrodomésticos', frecuencia: 'anual', proximaFecha: proximaFecha(6), costo: 100, notas: 'Prevenir incendios', completada: false },
+        
+        // Seguridad
+        { id: 26, titulo: 'Revisar extintores', categoria: 'Seguridad', frecuencia: 'anual', proximaFecha: proximaFecha(6), costo: 0, notas: 'Verificar presión y fecha', completada: false },
+        { id: 27, titulo: 'Probar detectores CO', categoria: 'Seguridad', frecuencia: 'mensual', proximaFecha: proximaFecha(0), costo: 0, notas: 'Botón de prueba', completada: false },
+        { id: 28, titulo: 'Revisar cerraduras', categoria: 'Seguridad', frecuencia: 'anual', proximaFecha: proximaFecha(8), costo: 0, notas: 'Lubricar y verificar', completada: false },
+        
+        // General
+        { id: 29, titulo: 'Inspección general de casa', categoria: 'General', frecuencia: 'anual', proximaFecha: proximaFecha(11), costo: 400, notas: 'Inspector profesional', completada: false },
+        { id: 30, titulo: 'Revisar sótano/cimientos', categoria: 'General', frecuencia: 'semestral', proximaFecha: proximaFecha(4), costo: 0, notas: 'Buscar humedad o grietas', completada: false }
+    ];
+    
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+}
+
 let historial = JSON.parse(localStorage.getItem('historial')) || [];
 let proveedores = JSON.parse(localStorage.getItem('proveedores')) || [];
 
