@@ -1,0 +1,376 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+}
+
+header {
+    background: #2c5530;
+    color: white;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+nav {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.nav-btn.active {
+    background: white;
+    color: #2c5530;
+}
+
+main {
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.section-header h2 {
+    color: #2c5530;
+}
+
+.btn-primary {
+    background: #2c5530;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-primary:hover {
+    background: #1e3d22;
+}
+
+.filtros {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filtro {
+    background: #e0e0e0;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.filtro.active {
+    background: #2c5530;
+    color: white;
+}
+
+.tarea-card, .proveedor-card, .historial-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tarea-card.vencida {
+    border-left: 4px solid #d32f2f;
+}
+
+.tarea-card.proxima {
+    border-left: 4px solid #f57c00;
+}
+
+.tarea-card.ok {
+    border-left: 4px solid #388e3c;
+}
+
+.tarea-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.tarea-nombre {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tarea-sistema {
+    background: #e8f5e9;
+    color: #2c5530;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.tarea-fecha {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.tarea-acciones {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-accion {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-completar {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-editar {
+    background: #2196f3;
+    color: white;
+}
+
+.btn-eliminar {
+    background: #f44336;
+    color: white;
+}
+
+/* Calendario */
+.calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.btn-nav {
+    background: #2c5530;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+#calendario-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dia-header {
+    background: #2c5530;
+    color: white;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.dia {
+    background: white;
+    padding: 0.5rem;
+    min-height: 60px;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+
+.dia:hover {
+    background: #f5f5f5;
+}
+
+.dia.otro-mes {
+    color: #ccc;
+}
+
+.dia.hoy {
+    background: #e8f5e9;
+}
+
+.dia.tiene-tareas {
+    position: relative;
+}
+
+.dia.tiene-tareas::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #2c5530;
+    border-radius: 50%;
+}
+
+#tareas-dia {
+    margin-top: 1rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.cerrar {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal h3 {
+    margin-bottom: 1rem;
+    color: #2c5530;
+}
+
+.modal label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.modal input,
+.modal select,
+.modal textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.modal button[type="submit"] {
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
+/* Proveedores */
+.proveedor-card h3 {
+    color: #2c5530;
+    margin-bottom: 0.5rem;
+}
+
+.proveedor-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.proveedor-info a {
+    color: #2196f3;
+    text-decoration: none;
+}
+
+/* Historial */
+.historial-stats {
+    background: #e8f5e9;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #2c5530;
+}
+
+.historial-card {
+    border-left: 4px solid #2c5530;
+}
+
+.historial-fecha {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.historial-costo {
+    font-weight: 600;
+    color: #2c5530;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .nav-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
