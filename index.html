@@ -2,131 +2,723 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Casa Middleburg</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #252532;
+            --accent: #10b981;
+            --accent-dim: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-dim: #6b7280;
+            --border: #2d2d3a;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
             padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        header {
-            text-align: center;
-            padding: 30px 0;
-        }
-        header h1 {
-            font-size: 2rem;
-            color: #4ade80;
-            margin-bottom: 5px;
-        }
-        header p {
-            color: #888;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        .stat {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-num {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #4ade80;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            color: #888;
-        }
-        .section {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 20px;
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
         }
-        .section h2 {
-            font-size: 1rem;
-            color: #4ade80;
-            margin-bottom: 15px;
+
+        .logo {
             display: flex;
             align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .icon-btn.has-badge::after {
+            content: attr(data-badge);
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
         }
-        .task {
-            background: rgba(255,255,255,0.08);
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 8px;
             border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-value.danger { color: #fca5a5; }
+        .stat-value.warning { color: #fcd34d; }
+        .stat-value.success { color: #6ee7b7; }
+
+        .stat-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            padding: 5px;
+            margin: 15px;
+            border-radius: 12px;
+            gap: 5px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-tab span {
+            font-size: 1.2rem;
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 0 15px 100px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             padding: 15px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .task.done {
-            opacity: 0.5;
+
+        .alert-banner.warning {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
         }
-        .task input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            accent-color: #4ade80;
+
+        .alert-banner.info {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
-        .task-info {
-            flex: 1;
+
+        .alert-icon {
+            font-size: 2rem;
         }
-        .task-name {
-            font-weight: 500;
+
+        .alert-content h3 {
+            font-size: 0.95rem;
             margin-bottom: 3px;
         }
-        .task-detail {
+
+        .alert-content p {
             font-size: 0.8rem;
-            color: #888;
+            opacity: 0.9;
         }
-        .task-due {
+
+        /* Task Cards */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0 15px;
+        }
+
+        .section-header h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h2 span {
+            font-size: 1.3rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
             font-size: 0.75rem;
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 20px;
-            background: #4ade80;
-            color: #000;
             font-weight: 600;
         }
-        .task-due.soon {
-            background: #fbbf24;
+
+        .badge.danger { background: var(--danger); }
+        .badge.warning { background: var(--warning); }
+
+        .task-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--border);
+            transition: all 0.2s;
         }
-        .task-due.overdue {
-            background: #ef4444;
-            color: #fff;
+
+        .task-card:active {
+            transform: scale(0.98);
+            background: var(--bg-hover);
         }
-        .add-btn {
-            width: 100%;
-            padding: 15px;
-            border: 2px dashed #333;
-            border-radius: 10px;
-            background: transparent;
-            color: #888;
+
+        .task-card.priority-critical {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--bg-card) 100%);
+        }
+
+        .task-card.priority-high {
+            border-left-color: var(--warning);
+        }
+
+        .task-card.priority-normal {
+            border-left-color: var(--accent);
+        }
+
+        .task-card.priority-low {
+            border-left-color: var(--info);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
             font-size: 1rem;
+            font-weight: 600;
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .task-status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .task-status.overdue {
+            background: var(--danger);
+            color: white;
+        }
+
+        .task-status.due-soon {
+            background: var(--warning);
+            color: black;
+        }
+
+        .task-status.upcoming {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .task-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .task-meta-item span {
+            font-size: 1rem;
+        }
+
+        .task-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+
+        .tag.must { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .tag.important { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .tag.recommended { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        .tag.seasonal { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .task-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
             cursor: pointer;
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
         }
-        .add-btn:hover {
-            border-color: #4ade80;
-            color: #4ade80;
+
+        .task-btn.primary {
+            background: var(--accent);
+            color: white;
         }
-        .modal {
+
+        .task-btn.secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .task-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        /* Systems Section */
+        .system-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+
+        .system-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .system-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .system-icon.hvac { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .system-icon.plumbing { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .system-icon.electrical { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .system-icon.exterior { background: linear-gradient(135deg, #10b981, #059669); }
+        .system-icon.interior { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .system-icon.safety { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .system-icon.appliances { background: linear-gradient(135deg, #ec4899, #db2777); }
+
+        .system-info h3 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .system-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .system-status {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            background: var(--bg-hover);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .system-status-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .system-status-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .system-status-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .system-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .system-details dt {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+
+        .system-details dd {
+            color: var(--text-primary);
+        }
+
+        /* History Section */
+        .history-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-date {
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .history-date .day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .history-date .month {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-content h4 {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .history-content p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .history-cost {
+            text-align: right;
+        }
+
+        .history-cost .amount {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--warning);
+        }
+
+        .history-cost .label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* Contacts Section */
+        .contact-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .contact-info h3 {
+            font-size: 1rem;
+        }
+
+        .contact-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .contact-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .contact-btn.call {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Settings Section */
+        .settings-group {
+            background: var(--bg-card);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .settings-group-title {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            padding: 15px 18px 10px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 18px;
+            border-top: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .settings-item:first-child {
+            border-top: none;
+        }
+
+        .settings-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .settings-item-content {
+            flex: 1;
+        }
+
+        .settings-item-title {
+            font-size: 0.95rem;
+        }
+
+        .settings-item-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .settings-item-action {
+            color: var(--text-dim);
+        }
+
+        .toggle {
+            width: 50px;
+            height: 28px;
+            border-radius: 14px;
+            background: var(--bg-hover);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle.active {
+            background: var(--accent);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s;
+        }
+
+        .toggle.active::after {
+            left: 25px;
+        }
+
+        /* Modal */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0;
@@ -134,278 +726,1798 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.8);
+            z-index: 1000;
             justify-content: center;
-            align-items: center;
+            align-items: flex-end;
             padding: 20px;
         }
-        .modal.active {
+
+        .modal-overlay.active {
             display: flex;
         }
-        .modal-content {
-            background: #1a1a2e;
-            padding: 25px;
-            border-radius: 15px;
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 20px 20px 0 0;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
         }
-        .modal h3 {
-            margin-bottom: 20px;
-            color: #4ade80;
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
-        .modal input, .modal select {
-            width: 100%;
-            padding: 12px;
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             border: none;
-            border-radius: 8px;
-            background: #2d3748;
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 16px;
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .modal-btns {
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%239ca3af' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 24px;
+            padding-right: 40px;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .priority-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .priority-option {
+            padding: 12px 8px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .priority-option span {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .priority-option small {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .priority-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
             display: flex;
             gap: 10px;
         }
-        .modal-btns button {
+
+        .btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        .btn-save {
-            background: #4ade80;
-            color: #000;
-            font-weight: bold;
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
         }
-        .btn-cancel {
-            background: #333;
-            color: #fff;
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 50;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        /* Task Detail Modal */
+        .task-detail-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        }
+
+        .task-detail-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .task-detail-meta {
+            display: flex;
+            gap: 15px;
+            opacity: 0.9;
+            font-size: 0.85rem;
+        }
+
+        .task-detail-body {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .detail-checklist {
+            list-style: none;
+        }
+
+        .detail-checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-checklist input {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--accent);
+        }
+
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-info-item {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .detail-info-item label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-info-item span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-card {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .main-content {
+                max-width: 600px;
+                margin: 0 auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏠 Casa Middleburg</h1>
-            <p>Mantenimiento inteligente</p>
-        </header>
-
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-num" id="pending">0</div>
-                <div class="stat-label">Pendientes</div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">🏠</div>
+                <div class="logo-text">
+                    <h1>Casa Middleburg</h1>
+                    <span>Virginia • Casa nueva (2024)</span>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-num" id="done">0</div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="showSearch()">🔍</button>
+                <button class="icon-btn" onclick="showNotifications()" style="position:relative" data-badge="3">🔔</button>
+            </div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-value danger" id="stat-overdue">2</div>
+                <div class="stat-label">Vencidas</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value warning" id="stat-soon">5</div>
+                <div class="stat-label">Esta semana</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="stat-month">12</div>
+                <div class="stat-label">Este mes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value success" id="stat-done">28</div>
                 <div class="stat-label">Completadas</div>
             </div>
-            <div class="stat">
-                <div class="stat-num" id="streak">0</div>
-                <div class="stat-label">Racha días</div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-section="tasks">
+            <span>📋</span>
+            Tareas
+        </button>
+        <button class="nav-tab" data-section="systems">
+            <span>⚙️</span>
+            Sistemas
+        </button>
+        <button class="nav-tab" data-section="history">
+            <span>📊</span>
+            Historial
+        </button>
+        <button class="nav-tab" data-section="contacts">
+            <span>📞</span>
+            Contactos
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Tasks Section -->
+        <section class="section active" id="section-tasks">
+            <!-- Alert Banner -->
+            <div class="alert-banner" id="alert-banner">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h3>2 tareas vencidas requieren atención</h3>
+                    <p>Filtro HVAC y revisión de detectores de humo</p>
+                </div>
+            </div>
+
+            <!-- Critical Tasks -->
+            <div class="section-header">
+                <h2><span>🚨</span> Crítico - Hacer ahora</h2>
+                <span class="badge danger" id="badge-critical">2</span>
+            </div>
+            <div id="tasks-critical"></div>
+
+            <!-- This Week -->
+            <div class="section-header">
+                <h2><span>📅</span> Esta semana</h2>
+                <span class="badge warning" id="badge-week">5</span>
+            </div>
+            <div id="tasks-week"></div>
+
+            <!-- This Month -->
+            <div class="section-header">
+                <h2><span>📆</span> Este mes</h2>
+                <span class="badge" id="badge-month">7</span>
+            </div>
+            <div id="tasks-month"></div>
+
+            <!-- Seasonal -->
+            <div class="section-header">
+                <h2><span>🍂</span> Estacional (Otoño)</h2>
+            </div>
+            <div id="tasks-seasonal"></div>
+        </section>
+
+        <!-- Systems Section -->
+        <section class="section" id="section-systems">
+            <div class="section-header">
+                <h2><span>🏠</span> Sistemas de tu casa</h2>
+            </div>
+            <div id="systems-list"></div>
+        </section>
+
+        <!-- History Section -->
+        <section class="section" id="section-history">
+            <div class="section-header">
+                <h2><span>📊</span> Historial de mantenimiento</h2>
+            </div>
+            <div class="stats-row" style="margin-bottom:20px">
+                <div class="stat-box">
+                    <div class="stat-value">$1,240</div>
+                    <div class="stat-label">Este año</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">28</div>
+                    <div class="stat-label">Tareas hechas</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">A tiempo</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">A+</div>
+                    <div class="stat-label">Estado casa</div>
+                </div>
+            </div>
+            <div id="history-list"></div>
+        </section>
+
+        <!-- Contacts Section -->
+        <section class="section" id="section-contacts">
+            <div class="section-header">
+                <h2><span>📞</span> Contratistas y servicios</h2>
+            </div>
+            <div id="contacts-list"></div>
+            <button class="task-btn secondary" style="width:100%;margin-top:15px" onclick="showAddContact()">
+                ➕ Agregar contacto
+            </button>
+        </section>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="showAddTask()">+</button>
+
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="modal-add-task">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Nueva tarea</h2>
+                <button class="modal-close" onclick="closeModal('modal-add-task')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nombre de la tarea</label>
+                    <input type="text" class="form-input" id="new-task-name" placeholder="Ej: Cambiar filtro HVAC">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sistema</label>
+                    <select class="form-input form-select" id="new-task-system">
+                        <option value="hvac">🌡️ HVAC / Climatización</option>
+                        <option value="plumbing">🚿 Plomería</option>
+                        <option value="electrical">⚡ Eléctrico</option>
+                        <option value="exterior">🏡 Exterior</option>
+                        <option value="interior">🛋️ Interior</option>
+                        <option value="safety">🔒 Seguridad</option>
+                        <option value="appliances">🔌 Electrodomésticos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Importancia</label>
+                    <div class="priority-selector">
+                        <div class="priority-option" data-priority="critical" onclick="selectPriority(this)">
+                            <span>🚨</span>
+                            <small>Crítico</small>
+                        </div>
+                        <div class="priority-option selected" data-priority="must" onclick="selectPriority(this)">
+                            <span>⚠️</span>
+                            <small>Must</small>
+                        </div>
+                        <div class="priority-option" data-priority="important" onclick="selectPriority(this)">
+                            <span>📌</span>
+                            <small>Importante</small>
+                        </div>
+                        <div class="priority-option" data-priority="nice" onclick="selectPriority(this)">
+                            <span>💡</span>
+                            <small>Opcional</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha límite</label>
+                    <input type="date" class="form-input" id="new-task-date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Repetir cada</label>
+                    <select class="form-input form-select" id="new-task-repeat">
+                        <option value="0">No repetir</option>
+                        <option value="30">Cada mes</option>
+                        <option value="90" selected>Cada 3 meses</option>
+                        <option value="180">Cada 6 meses</option>
+                        <option value="365">Cada año</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notas / Instrucciones</label>
+                    <textarea class="form-input form-textarea" id="new-task-notes" placeholder="Detalles, pasos a seguir, productos necesarios..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-add-task')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveNewTask()">Guardar tarea</button>
             </div>
         </div>
-
-        <div class="section">
-            <h2>🔥 Esta semana</h2>
-            <div id="urgent"></div>
-        </div>
-
-        <div class="section">
-            <h2>📅 Este mes</h2>
-            <div id="monthly"></div>
-        </div>
-
-        <div class="section">
-            <h2>📋 Próximamente</h2>
-            <div id="later"></div>
-        </div>
-
-        <button class="add-btn" onclick="openModal()">+ Agregar tarea</button>
     </div>
 
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3>Nueva tarea</h3>
-            <input type="text" id="taskName" placeholder="Nombre de la tarea">
-            <select id="taskCategory">
-                <option value="hvac">🌡️ HVAC</option>
-                <option value="plumbing">🚿 Plomería</option>
-                <option value="exterior">🏡 Exterior</option>
-                <option value="interior">🛋️ Interior</option>
-                <option value="safety">🔒 Seguridad</option>
-                <option value="other">📦 Otro</option>
-            </select>
-            <input type="date" id="taskDate">
-            <div class="modal-btns">
-                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                <button class="btn-save" onclick="saveTask()">Guardar</button>
+    <!-- Task Detail Modal -->
+    <div class="modal-overlay" id="modal-task-detail">
+        <div class="modal">
+            <div class="task-detail-header">
+                <button class="modal-close" onclick="closeModal('modal-task-detail')" style="position:absolute;right:15px;top:15px;background:rgba(255,255,255,0.2)">✕</button>
+                <h2 class="task-detail-title" id="detail-title">Cambiar filtro HVAC</h2>
+                <div class="task-detail-meta">
+                    <span>🌡️ HVAC</span>
+                    <span>📅 Vence: 15 Oct 2024</span>
+                </div>
+            </div>
+            <div class="task-detail-body">
+                <div class="detail-section">
+                    <h4>¿Por qué es importante?</h4>
+                    <div class="detail-content" id="detail-why"></div>
+                </div>
+                <div class="detail-section">
+                    <h4>Pasos a seguir</h4>
+                    <ul class="detail-checklist" id="detail-steps"></ul>
+                </div>
+                <div class="detail-section">
+                    <h4>Información</h4>
+                    <div class="detail-info-grid">
+                        <div class="detail-info-item">
+                            <label>Frecuencia</label>
+                            <span id="detail-frequency">Cada 3 meses</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <label>Costo estimado</label>
+                            <span id="detail-cost">$15-30</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <label>Tiempo estimado</label>
+                            <span id="detail-time">10 minutos</span>
+                        </div>
+                        <div class="detail-info-item">
+                            <label>Dificultad</label>
+                            <span id="detail-difficulty">Fácil (DIY)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h4>Productos / materiales</h4>
+                    <div class="detail-content" id="detail-materials"></div>
+                </div>
+                <div class="detail-section">
+                    <h4>Último mantenimiento</h4>
+                    <div class="detail-content" id="detail-last">Nunca registrado</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="postponeTask()">Posponer</button>
+                <button class="btn btn-primary" onclick="completeTask()">✓ Marcar completada</button>
             </div>
         </div>
     </div>
 
     <script>
-        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-
-        // Tareas predeterminadas para casa de 1 año en Virginia
+        // ===== DATA =====
+        const APP_VERSION = '2.0.0';
+        
+        // Comprehensive task database for a new house in Virginia
         const defaultTasks = [
-            { id: 1, name: "Cambiar filtro HVAC", category: "hvac", detail: "Filtro 20x25x1", daysInterval: 90, lastDone: null },
-            { id: 2, name: "Revisar detectores de humo", category: "safety", detail: "Probar botón de cada uno", daysInterval: 30, lastDone: null },
-            { id: 3, name: "Limpiar canaletas", category: "exterior", detail: "Antes de otoño e invierno", daysInterval: 180, lastDone: null },
-            { id: 4, name: "Inspeccionar calentador de agua", category: "plumbing", detail: "Revisar válvula y sedimentos", daysInterval: 365, lastDone: null },
-            { id: 5, name: "Revisar sellado de ventanas", category: "exterior", detail: "Buscar corrientes de aire", daysInterval: 365, lastDone: null },
-            { id: 6, name: "Limpiar refrigerador - serpentines", category: "interior", detail: "Parte trasera", daysInterval: 180, lastDone: null },
-            { id: 7, name: "Revisar extintores", category: "safety", detail: "Verificar presión", daysInterval: 365, lastDone: null },
-            { id: 8, name: "Tratar deck/patio", category: "exterior", detail: "Sellador para madera", daysInterval: 365, lastDone: null },
-            { id: 9, name: "Servicio HVAC profesional", category: "hvac", detail: "Antes de verano", daysInterval: 365, lastDone: null },
-            { id: 10, name: "Drenar calentador de agua", category: "plumbing", detail: "Remover sedimentos", daysInterval: 365, lastDone: null },
+            // HVAC
+            {
+                id: 1,
+                name: "Cambiar filtro HVAC",
+                system: "hvac",
+                priority: "must",
+                frequency: 90,
+                dueDate: "2024-10-15",
+                why: "Un filtro sucio reduce la eficiencia hasta un 15%, aumenta costos de energía, y puede dañar el sistema. En una casa nueva, es especialmente importante durante el primer año ya que hay más polvo de construcción.",
+                steps: [
+                    "Apagar el sistema HVAC",
+                    "Localizar el compartimento del filtro (generalmente cerca del return air)",
+                    "Remover el filtro viejo, notar la dirección del flujo de aire",
+                    "Insertar filtro nuevo con la flecha apuntando hacia el sistema",
+                    "Encender el sistema y verificar funcionamiento"
+                ],
+                cost: "$15-30",
+                time: "10 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Filtro 20x25x1 MERV 8-11 (verificar tamaño en el filtro actual). Recomendado: Filtrete o Honeywell.",
+                tags: ["must", "diy", "recurrente"]
+            },
+            {
+                id: 2,
+                name: "Servicio HVAC profesional - Calefacción",
+                system: "hvac",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-09-30",
+                why: "Inspección profesional antes del invierno asegura que el sistema funcione eficientemente y detecta problemas antes de que sean costosos. Mantiene la garantía del fabricante.",
+                steps: [
+                    "Llamar al técnico certificado",
+                    "Programar cita antes de octubre",
+                    "Verificar que revisen: quemadores, intercambiador de calor, conexiones, termostato",
+                    "Pedir reporte escrito",
+                    "Guardar factura para garantía"
+                ],
+                cost: "$150-250",
+                time: "1-2 horas",
+                difficulty: "Profesional",
+                materials: "N/A - Servicio profesional",
+                tags: ["must", "profesional", "garantía"]
+            },
+            {
+                id: 3,
+                name: "Servicio HVAC profesional - A/C",
+                system: "hvac",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2025-03-15",
+                why: "Preparar el aire acondicionado antes del verano. Verificar niveles de refrigerante y limpiar serpentines.",
+                steps: [
+                    "Programar servicio en marzo/abril",
+                    "Verificar refrigerante",
+                    "Limpiar serpentines exteriores",
+                    "Revisar capacitores y contactores",
+                    "Probar funcionamiento"
+                ],
+                cost: "$150-250",
+                time: "1-2 horas",
+                difficulty: "Profesional",
+                materials: "N/A - Servicio profesional",
+                tags: ["must", "profesional", "garantía"]
+            },
+            {
+                id: 4,
+                name: "Limpiar registros y rejillas de ventilación",
+                system: "hvac",
+                priority: "important",
+                frequency: 180,
+                dueDate: "2024-11-01",
+                why: "Mejora la calidad del aire y la eficiencia del sistema. En casa nueva hay más polvo de construcción.",
+                steps: [
+                    "Remover rejillas de pared/piso",
+                    "Aspirar polvo visible en ductos accesibles",
+                    "Lavar rejillas con agua y jabón",
+                    "Secar completamente antes de reinstalar"
+                ],
+                cost: "$0",
+                time: "30-45 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Aspiradora, agua, jabón",
+                tags: ["recommended", "diy"]
+            },
+            // PLUMBING
+            {
+                id: 5,
+                name: "Inspeccionar calentador de agua",
+                system: "plumbing",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-12-01",
+                why: "Previene fugas costosas, mantiene eficiencia, y extiende vida útil. El calentador de agua es una de las principales causas de daño por agua en casas.",
+                steps: [
+                    "Revisar área alrededor por signos de fugas",
+                    "Verificar la válvula de alivio de presión (T&P)",
+                    "Revisar ánodo (si es accesible)",
+                    "Verificar temperatura (120°F/49°C recomendado)",
+                    "Revisar conexiones de gas (si aplica)"
+                ],
+                cost: "$0 (inspección) / $20-50 (ánodo)",
+                time: "15-20 minutos",
+                difficulty: "Medio (DIY)",
+                materials: "Balde para probar válvula T&P",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 6,
+                name: "Drenar calentador de agua (sedimentos)",
+                system: "plumbing",
+                priority: "important",
+                frequency: 365,
+                dueDate: "2024-12-15",
+                why: "Remueve sedimentos que reducen eficiencia y pueden causar ruidos o daños. Especialmente importante si tienes agua dura.",
+                steps: [
+                    "Apagar calentador (gas o eléctrico)",
+                    "Conectar manguera a válvula de drenaje",
+                    "Dirigir manguera a drenaje o exterior",
+                    "Abrir válvula y drenar 2-3 galones",
+                    "Cerrar válvula y encender calentador"
+                ],
+                cost: "$0",
+                time: "30 minutos",
+                difficulty: "Medio (DIY)",
+                materials: "Manguera de jardín",
+                tags: ["important", "diy"]
+            },
+            {
+                id: 7,
+                name: "Revisar presión de agua",
+                system: "plumbing",
+                priority: "important",
+                frequency: 365,
+                dueDate: "2024-11-15",
+                why: "Presión muy alta (>80 psi) daña tuberías, fixtures, y electrodomésticos. Presión baja indica problemas.",
+                steps: [
+                    "Comprar medidor de presión ($10)",
+                    "Conectar a grifo exterior",
+                    "Verificar presión (ideal: 40-60 psi)",
+                    "Si >80 psi, considerar regulador de presión"
+                ],
+                cost: "$10 (medidor)",
+                time: "5 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Medidor de presión de agua",
+                tags: ["important", "diy"]
+            },
+            {
+                id: 8,
+                name: "Limpiar aeradores de grifos",
+                system: "plumbing",
+                priority: "nice",
+                frequency: 180,
+                dueDate: "2024-12-01",
+                why: "Mejora el flujo de agua y remueve depósitos minerales.",
+                steps: [
+                    "Desenroscar aerador del grifo",
+                    "Remojar en vinagre 1 hora",
+                    "Cepillar suavemente",
+                    "Enjuagar y reinstalar"
+                ],
+                cost: "$0",
+                time: "15 minutos por grifo",
+                difficulty: "Fácil (DIY)",
+                materials: "Vinagre blanco",
+                tags: ["nice", "diy"]
+            },
+            {
+                id: 9,
+                name: "Inspeccionar bajo lavabos y fregaderos",
+                system: "plumbing",
+                priority: "must",
+                frequency: 90,
+                dueDate: "2024-10-20",
+                why: "Detecta fugas temprano antes de que causen daño por agua o moho.",
+                steps: [
+                    "Abrir gabinetes bajo cada lavabo",
+                    "Revisar conexiones por humedad",
+                    "Verificar tuberías de drenaje",
+                    "Buscar signos de moho o manchas de agua"
+                ],
+                cost: "$0",
+                time: "10 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Linterna",
+                tags: ["must", "diy"]
+            },
+            // EXTERIOR
+            {
+                id: 10,
+                name: "Limpiar canaletas y bajantes",
+                system: "exterior",
+                priority: "must",
+                frequency: 180,
+                dueDate: "2024-10-25",
+                why: "Canaletas tapadas causan daño al techo, fascia, y cimientos. Crítico hacer antes del invierno en Virginia.",
+                steps: [
+                    "Usar escalera segura o contratar servicio",
+                    "Remover hojas y debris",
+                    "Verificar que bajantes estén despejados",
+                    "Asegurar que el agua drene lejos de cimientos",
+                    "Revisar canaletas por daños"
+                ],
+                cost: "$0 (DIY) / $100-200 (profesional)",
+                time: "1-2 horas",
+                difficulty: "Medio (DIY con cuidado)",
+                materials: "Guantes, escalera, bolsa para debris",
+                tags: ["must", "seasonal"]
+            },
+            {
+                id: 11,
+                name: "Preparar grifos exteriores para invierno",
+                system: "exterior",
+                priority: "critical",
+                frequency: 365,
+                dueDate: "2024-10-31",
+                why: "En Virginia las temperaturas bajan de 32°F. Tuberías congeladas pueden explotar y causar daños de $5,000+.",
+                steps: [
+                    "Cerrar válvula de agua interior para grifos externos",
+                    "Abrir grifos exteriores para drenar",
+                    "Desconectar y guardar mangueras",
+                    "Instalar cubiertas aislantes en grifos ($5 cada una)",
+                    "Verificar que no haya agua atrapada"
+                ],
+                cost: "$10-20",
+                time: "20 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Cubiertas aislantes para grifos (Frost King)",
+                tags: ["critical", "seasonal", "must"]
+            },
+            {
+                id: 12,
+                name: "Inspeccionar sellado de ventanas y puertas",
+                system: "exterior",
+                priority: "important",
+                frequency: 365,
+                dueDate: "2024-10-30",
+                why: "Sellos deteriorados aumentan costos de energía y permiten entrada de humedad y plagas.",
+                steps: [
+                    "Revisar calafateo exterior de ventanas",
+                    "Verificar burletes en puertas",
+                    "Buscar corrientes de aire con vela o incienso",
+                    "Reaplicar calafateo donde sea necesario",
+                    "Reemplazar burletes dañados"
+                ],
+                cost: "$20-50",
+                time: "2-3 horas",
+                difficulty: "Medio (DIY)",
+                materials: "Calafateo (DAP o GE), burletes adhesivos",
+                tags: ["important", "seasonal", "diy"]
+            },
+            {
+                id: 13,
+                name: "Revisar y limpiar deck/patio",
+                system: "exterior",
+                priority: "important",
+                frequency: 365,
+                dueDate: "2024-11-15",
+                why: "Previene deterioro de madera/composite y mantiene apariencia.",
+                steps: [
+                    "Barrer hojas y debris",
+                    "Lavar con agua a presión (si es seguro para el material)",
+                    "Inspeccionar por tablas sueltas o dañadas",
+                    "Verificar barandales",
+                    "Aplicar sellador si es madera (cada 2-3 años)"
+                ],
+                cost: "$0 (limpieza) / $50-100 (sellador)",
+                time: "2-4 horas",
+                difficulty: "Medio (DIY)",
+                materials: "Escoba, lavadora a presión (opcional), sellador para deck",
+                tags: ["important", "seasonal"]
+            },
+            {
+                id: 14,
+                name: "Revisar techo visualmente",
+                system: "exterior",
+                priority: "important",
+                frequency: 180,
+                dueDate: "2024-11-01",
+                why: "Detecta tejas dañadas o faltantes antes de que causen filtraciones.",
+                steps: [
+                    "Inspeccionar desde el suelo con binoculares",
+                    "Buscar tejas levantadas, rotas o faltantes",
+                    "Revisar áreas alrededor de chimenea y ventilaciones",
+                    "Verificar flashings",
+                    "Programar reparación si hay daños"
+                ],
+                cost: "$0",
+                time: "15 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Binoculares",
+                tags: ["important", "diy"]
+            },
+            // SAFETY
+            {
+                id: 15,
+                name: "Probar detectores de humo",
+                system: "safety",
+                priority: "critical",
+                frequency: 30,
+                dueDate: "2024-10-15",
+                why: "Los detectores de humo salvan vidas. Probarlos mensualmente asegura que funcionen cuando sea necesario.",
+                steps: [
+                    "Presionar botón de prueba en cada detector",
+                    "Verificar que suene alarma fuerte",
+                    "Si no suena, cambiar baterías",
+                    "Si aún no funciona, reemplazar unidad"
+                ],
+                cost: "$0",
+                time: "5 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "N/A",
+                tags: ["critical", "must", "diy"]
+            },
+            {
+                id: 16,
+                name: "Cambiar baterías de detectores",
+                system: "safety",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-11-03",
+                why: "Baterías débiles = detector inútil. Cambiar con el horario de invierno es fácil de recordar.",
+                steps: [
+                    "Remover detector del techo/pared",
+                    "Abrir compartimento de batería",
+                    "Instalar batería nueva 9V (Duracell o Energizer)",
+                    "Probar detector",
+                    "Reinstalar"
+                ],
+                cost: "$10-20",
+                time: "15 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Baterías 9V (una por detector)",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 17,
+                name: "Probar detectores de monóxido de carbono",
+                system: "safety",
+                priority: "critical",
+                frequency: 30,
+                dueDate: "2024-10-15",
+                why: "El CO es un gas mortal e indetectable. Antes del invierno es crítico ya que usarás calefacción.",
+                steps: [
+                    "Presionar botón de prueba",
+                    "Verificar que funcione",
+                    "Revisar fecha de expiración (duran 5-7 años)",
+                    "Asegurar que haya uno por piso"
+                ],
+                cost: "$0",
+                time: "5 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "N/A",
+                tags: ["critical", "must", "diy"]
+            },
+            {
+                id: 18,
+                name: "Revisar extintores",
+                system: "safety",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-10-30",
+                why: "Un extintor descargado o vencido es inútil en emergencia.",
+                steps: [
+                    "Verificar que el indicador esté en zona verde",
+                    "Revisar fecha de vencimiento",
+                    "Asegurar que el pin de seguridad esté intacto",
+                    "Verificar que la manguera no esté dañada",
+                    "Reemplazar si tiene más de 12 años"
+                ],
+                cost: "$0 (revisión) / $30-50 (reemplazo)",
+                time: "5 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Extintor ABC si necesita reemplazo",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 19,
+                name: "Revisar/probar puertas de garaje",
+                system: "safety",
+                priority: "important",
+                frequency: 180,
+                dueDate: "2024-11-15",
+                why: "El mecanismo de reversa previene lesiones. Los resortes desgastados son peligrosos.",
+                steps: [
+                    "Probar sensor de reversa poniendo objeto en el camino",
+                    "La puerta debe revertir automáticamente",
+                    "Revisar resortes visualmente por desgaste",
+                    "Lubricar rieles y bisagras",
+                    "Verificar que cierre completamente"
+                ],
+                cost: "$0 (revisión) / $10 (lubricante)",
+                time: "15 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Lubricante de silicona",
+                tags: ["important", "diy"]
+            },
+            // INTERIOR
+            {
+                id: 20,
+                name: "Limpiar filtro de campana de cocina",
+                system: "interior",
+                priority: "important",
+                frequency: 90,
+                dueDate: "2024-11-01",
+                why: "Grasa acumulada reduce eficiencia y es riesgo de incendio.",
+                steps: [
+                    "Remover filtros de la campana",
+                    "Remojar en agua caliente con desengrasante",
+                    "Cepillar suavemente",
+                    "Enjuagar y secar",
+                    "Reinstalar"
+                ],
+                cost: "$0",
+                time: "30 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Desengrasante (Dawn funciona bien)",
+                tags: ["important", "diy"]
+            },
+            {
+                id: 21,
+                name: "Limpiar serpentines del refrigerador",
+                system: "appliances",
+                priority: "important",
+                frequency: 180,
+                dueDate: "2024-11-15",
+                why: "Serpentines sucios hacen que el refrigerador trabaje más duro, usa más energía, y reduce vida útil.",
+                steps: [
+                    "Desconectar refrigerador",
+                    "Localizar serpentines (atrás o abajo)",
+                    "Aspirar polvo con accesorio de cepillo",
+                    "Usar cepillo de serpentines si es necesario",
+                    "Reconectar"
+                ],
+                cost: "$0 (si tienes aspiradora) / $10 (cepillo especial)",
+                time: "20 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "Aspiradora, cepillo de serpentines (opcional)",
+                tags: ["important", "diy"]
+            },
+            {
+                id: 22,
+                name: "Revisar mangueras de lavadora",
+                system: "appliances",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-12-01",
+                why: "Mangueras viejas son causa común de inundaciones. Reemplazar cada 5 años.",
+                steps: [
+                    "Revisar mangueras por grietas o abultamientos",
+                    "Verificar conexiones por fugas",
+                    "Reemplazar si tienen más de 5 años",
+                    "Considerar mangueras de acero inoxidable"
+                ],
+                cost: "$0 (revisión) / $20-30 (mangueras nuevas)",
+                time: "10 minutos (revisión) / 30 min (reemplazo)",
+                difficulty: "Fácil (DIY)",
+                materials: "Mangueras braided de acero inoxidable si necesita reemplazo",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 23,
+                name: "Limpiar filtro de secadora",
+                system: "appliances",
+                priority: "critical",
+                frequency: 1,
+                dueDate: "2024-10-14",
+                why: "Pelusa acumulada es causa principal de incendios de secadoras. Limpiar después de CADA uso.",
+                steps: [
+                    "Remover filtro antes o después de cada carga",
+                    "Quitar pelusa con la mano",
+                    "Lavar con agua jabonosa mensualmente",
+                    "Dejar secar completamente antes de reinstalar"
+                ],
+                cost: "$0",
+                time: "1 minuto",
+                difficulty: "Fácil (DIY)",
+                materials: "N/A",
+                tags: ["critical", "must", "diy"]
+            },
+            {
+                id: 24,
+                name: "Limpiar ducto de secadora",
+                system: "appliances",
+                priority: "must",
+                frequency: 365,
+                dueDate: "2024-11-30",
+                why: "Pelusa en el ducto es riesgo de incendio y reduce eficiencia. Secadora tarda más = más costo de energía.",
+                steps: [
+                    "Desconectar secadora",
+                    "Desconectar ducto flexible",
+                    "Usar kit de limpieza de ductos o aspiradora",
+                    "Limpiar también la salida exterior",
+                    "Reconectar asegurando buen sello"
+                ],
+                cost: "$0 (DIY) / $100-150 (profesional)",
+                time: "45 minutos",
+                difficulty: "Medio (DIY)",
+                materials: "Kit de limpieza de ductos ($20-30) o servicio profesional",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 25,
+                name: "Revisar calafateo en baños",
+                system: "interior",
+                priority: "important",
+                frequency: 365,
+                dueDate: "2024-12-15",
+                why: "Calafateo deteriorado permite que el agua penetre, causando daño y moho.",
+                steps: [
+                    "Revisar calafateo alrededor de bañeras",
+                    "Verificar alrededor de bases de inodoros",
+                    "Inspeccionar alrededor de lavabos",
+                    "Remover y reaplicar donde esté deteriorado"
+                ],
+                cost: "$10-20",
+                time: "1-2 horas si necesita reaplicar",
+                difficulty: "Medio (DIY)",
+                materials: "Calafateo de silicona para baño (GE o DAP)",
+                tags: ["important", "diy"]
+            },
+            // ELECTRICAL
+            {
+                id: 26,
+                name: "Probar interruptores GFCI/AFCI",
+                system: "electrical",
+                priority: "must",
+                frequency: 30,
+                dueDate: "2024-10-20",
+                why: "GFCI previene electrocución. AFCI previene incendios. Deben probarse mensualmente.",
+                steps: [
+                    "Localizar todos los outlets GFCI (baños, cocina, exteriores)",
+                    "Presionar botón TEST - debe cortar corriente",
+                    "Presionar RESET para restaurar",
+                    "Reemplazar si no funciona correctamente"
+                ],
+                cost: "$0",
+                time: "5 minutos",
+                difficulty: "Fácil (DIY)",
+                materials: "N/A",
+                tags: ["must", "diy"]
+            },
+            {
+                id: 27,
+                name: "Inspección eléctrica del primer año",
+                system: "electrical",
+                priority: "important",
+                frequency: 0,
+                dueDate: "2025-06-01",
+                why: "Casa nueva puede tener conexiones que se aflojaron. Inspección al año detecta problemas antes de que la garantía expire.",
+                steps: [
+                    "Contratar electricista certificado",
+                    "Revisar panel principal",
+                    "Verificar conexiones en outlets",
+                    "Probar todos los circuitos",
+                    "Obtener reporte para garantía"
+                ],
+                cost: "$150-250",
+                time: "1-2 horas",
+                difficulty: "Profesional",
+                materials: "N/A - Servicio profesional",
+                tags: ["important", "profesional", "garantía"]
+            }
         ];
 
-        function init() {
-            if (tasks.length === 0) {
-                tasks = defaultTasks.map(t => ({
-                    ...t,
-                    dueDate: calculateDueDate(t.daysInterval)
-                }));
-                saveTasks();
+        const defaultSystems = [
+            {
+                id: "hvac",
+                name: "HVAC / Climatización",
+                icon: "hvac",
+                status: "good",
+                details: {
+                    "Marca/Modelo": "Verificar en unidad",
+                    "Tipo": "Bomba de calor / Gas",
+                    "Tamaño filtro": "20x25x1 (verificar)",
+                    "Garantía": "10 años compresor, 5 años partes",
+                    "Instalado": "2024"
+                },
+                tasks: 4,
+                nextTask: "Cambiar filtro - 15 Oct"
+            },
+            {
+                id: "plumbing",
+                name: "Plomería",
+                icon: "plumbing",
+                status: "good",
+                details: {
+                    "Calentador de agua": "Verificar marca/galones",
+                    "Tipo": "Gas o Eléctrico",
+                    "Sistema": "Alcantarillado público / Séptico",
+                    "Garantía calentador": "6-12 años típico"
+                },
+                tasks: 5,
+                nextTask: "Revisar bajo lavabos - 20 Oct"
+            },
+            {
+                id: "electrical",
+                name: "Sistema Eléctrico",
+                icon: "electrical",
+                status: "good",
+                details: {
+                    "Panel": "200A típico en casa nueva",
+                    "Tipo": "Monofásico",
+                    "GFCI": "Baños, cocina, exteriores, garaje",
+                    "AFCI": "Dormitorios (código Virginia)"
+                },
+                tasks: 2,
+                nextTask: "Probar GFCI - 20 Oct"
+            },
+            {
+                id: "exterior",
+                name: "Exterior",
+                icon: "exterior",
+                status: "attention",
+                details: {
+                    "Techo": "Verificar tipo y garantía",
+                    "Siding": "Verificar material",
+                    "Deck/Patio": "Verificar material",
+                    "Canaletas": "Incluido"
+                },
+                tasks: 5,
+                nextTask: "Limpiar canaletas - 25 Oct"
+            },
+            {
+                id: "safety",
+                name: "Seguridad",
+                icon: "safety",
+                status: "attention",
+                details: {
+                    "Detectores humo": "Uno por nivel + dormitorios",
+                    "Detectores CO": "Uno por nivel",
+                    "Extintores": "Cocina + garaje mínimo",
+                    "Código de entrada": "Verificar"
+                },
+                tasks: 5,
+                nextTask: "Probar detectores - 15 Oct"
+            },
+            {
+                id: "appliances",
+                name: "Electrodomésticos",
+                icon: "appliances",
+                status: "good",
+                details: {
+                    "Refrigerador": "Verificar marca",
+                    "Lavadora/Secadora": "Verificar marcas",
+                    "Lavavajillas": "Verificar marca",
+                    "Garantías": "Registrar todas"
+                },
+                tasks: 4,
+                nextTask: "Limpiar serpentines refri - 15 Nov"
             }
-            render();
+        ];
+
+        const defaultContacts = [
+            {
+                id: 1,
+                name: "Agregar tu técnico HVAC",
+                type: "HVAC",
+                phone: "",
+                notes: "Buscar técnico certificado en tu área"
+            },
+            {
+                id: 2,
+                name: "Agregar tu plomero",
+                type: "Plomería",
+                phone: "",
+                notes: "Tener contacto para emergencias"
+            },
+            {
+                id: 3,
+                name: "Agregar tu electricista",
+                type: "Eléctrico",
+                phone: "",
+                notes: "Debe ser certificado"
+            },
+            {
+                id: 4,
+                name: "Home Depot Middleburg",
+                type: "Tienda",
+                phone: "(540) 555-0123",
+                notes: "Para materiales y emergencias"
+            }
+        ];
+
+        // ===== STATE =====
+        let tasks = [];
+        let systems = [];
+        let contacts = [];
+        let history = [];
+        let currentTaskId = null;
+
+        // ===== INITIALIZATION =====
+        function init() {
+            loadData();
+            setupEventListeners();
+            renderAll();
         }
 
-        function calculateDueDate(days) {
-            const date = new Date();
-            date.setDate(date.getDate() + Math.floor(Math.random() * days));
-            return date.toISOString().split('T')[0];
-        }
+        function loadData() {
+            const savedTasks = localStorage.getItem('casa_tasks');
+            const savedSystems = localStorage.getItem('casa_systems');
+            const savedContacts = localStorage.getItem('casa_contacts');
+            const savedHistory = localStorage.getItem('casa_history');
 
-        function getDaysUntil(dateStr) {
+            tasks = savedTasks ? JSON.parse(savedTasks) : [...defaultTasks];
+            systems = savedSystems ? JSON.parse(savedSystems) : [...defaultSystems];
+            contacts = savedContacts ? JSON.parse(savedContacts) : [...defaultContacts];
+            history = savedHistory ? JSON.parse(savedHistory) : [];
+
+            // Set default date for new tasks
             const today = new Date();
-            today.setHours(0,0,0,0);
-            const due = new Date(dateStr);
-            return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+            document.getElementById('new-task-date').valueAsDate = today;
         }
 
-        function render() {
-            const urgent = document.getElementById('urgent');
-            const monthly = document.getElementById('monthly');
-            const later = document.getElementById('later');
+        function saveData() {
+            localStorage.setItem('casa_tasks', JSON.stringify(tasks));
+            localStorage.setItem('casa_systems', JSON.stringify(systems));
+            localStorage.setItem('casa_contacts', JSON.stringify(contacts));
+            localStorage.setItem('casa_history', JSON.stringify(history));
+        }
 
-            urgent.innerHTML = '';
-            monthly.innerHTML = '';
-            later.innerHTML = '';
+        function setupEventListeners() {
+            // Navigation tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('section-' + tab.dataset.section).classList.add('active');
+                });
+            });
 
-            let pendingCount = 0;
-            let doneCount = 0;
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        }
 
-            tasks.forEach(task => {
-                if (task.completed) {
-                    doneCount++;
-                    return;
-                }
-                pendingCount++;
+        // ===== RENDERING =====
+        function renderAll() {
+            renderTasks();
+            renderSystems();
+            renderHistory();
+            renderContacts();
+            updateStats();
+        }
 
-                const days = getDaysUntil(task.dueDate);
-                const html = createTaskHTML(task, days);
+        function renderTasks() {
+            const criticalContainer = document.getElementById('tasks-critical');
+            const weekContainer = document.getElementById('tasks-week');
+            const monthContainer = document.getElementById('tasks-month');
+            const seasonalContainer = document.getElementById('tasks-seasonal');
 
-                if (days <= 7) {
-                    urgent.innerHTML += html;
-                } else if (days <= 30) {
-                    monthly.innerHTML += html;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const critical = [];
+            const thisWeek = [];
+            const thisMonth = [];
+            const seasonal = [];
+
+            tasks.filter(t => !t.completed).forEach(task => {
+                const dueDate = new Date(task.dueDate);
+                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+                if (daysUntil < 0 || task.priority === 'critical') {
+                    critical.push({ ...task, daysUntil });
+                } else if (daysUntil <= 7) {
+                    thisWeek.push({ ...task, daysUntil });
+                } else if (daysUntil <= 30) {
+                    thisMonth.push({ ...task, daysUntil });
                 } else {
-                    later.innerHTML += html;
+                    seasonal.push({ ...task, daysUntil });
                 }
             });
 
-            document.getElementById('pending').textContent = pendingCount;
-            document.getElementById('done').textContent = doneCount;
+            criticalContainer.innerHTML = critical.length ? 
+                critical.map(t => renderTaskCard(t)).join('') : 
+                '<div class="empty-state"><span>✅</span><h3>¡Sin tareas críticas!</h3><p>Todo bajo control</p></div>';
 
-            if (!urgent.innerHTML) urgent.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">✅ ¡Todo al día!</p>';
-            if (!monthly.innerHTML) monthly.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Nada pendiente</p>';
-            if (!later.innerHTML) later.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Nada pendiente</p>';
+            weekContainer.innerHTML = thisWeek.length ?
+                thisWeek.map(t => renderTaskCard(t)).join('') :
+                '<div class="empty-state"><span>📅</span><h3>Semana libre</h3><p>No hay tareas esta semana</p></div>';
+
+            monthContainer.innerHTML = thisMonth.length ?
+                thisMonth.map(t => renderTaskCard(t)).join('') :
+                '<div class="empty-state"><span>📆</span><h3>Mes tranquilo</h3><p>No hay tareas pendientes este mes</p></div>';
+
+            seasonalContainer.innerHTML = seasonal.length ?
+                seasonal.map(t => renderTaskCard(t)).join('') :
+                '<div class="empty-state"><span>🍂</span><h3>Sin tareas estacionales</h3><p>Planificadas para más adelante</p></div>';
+
+            // Update badges
+            document.getElementById('badge-critical').textContent = critical.length;
+            document.getElementById('badge-week').textContent = thisWeek.length;
+            document.getElementById('badge-month').textContent = thisMonth.length;
+
+            // Update alert banner
+            const alertBanner = document.getElementById('alert-banner');
+            if (critical.length > 0) {
+                alertBanner.style.display = 'flex';
+                alertBanner.querySelector('h3').textContent = `${critical.length} tarea${critical.length > 1 ? 's' : ''} requiere${critical.length > 1 ? 'n' : ''} atención urgente`;
+            } else {
+                alertBanner.style.display = 'none';
+            }
         }
 
-        function createTaskHTML(task, days) {
-            let dueClass = '';
-            let dueText = '';
+        function renderTaskCard(task) {
+            const systemIcons = {
+                hvac: '🌡️',
+                plumbing: '🚿',
+                electrical: '⚡',
+                exterior: '🏡',
+                interior: '🛋️',
+                safety: '🔒',
+                appliances: '🔌'
+            };
 
-            if (days < 0) {
-                dueClass = 'overdue';
-                dueText = 'Vencida';
-            } else if (days === 0) {
-                dueClass = 'overdue';
-                dueText = 'Hoy';
-            } else if (days <= 7) {
-                dueClass = 'soon';
-                dueText = days + ' días';
-            } else {
-                dueText = days + ' días';
+            let statusClass = 'upcoming';
+            let statusText = `${task.daysUntil} días`;
+
+            if (task.daysUntil < 0) {
+                statusClass = 'overdue';
+                statusText = `Vencida (${Math.abs(task.daysUntil)}d)`;
+            } else if (task.daysUntil === 0) {
+                statusClass = 'overdue';
+                statusText = 'Hoy';
+            } else if (task.daysUntil <= 3) {
+                statusClass = 'due-soon';
             }
 
+            const priorityClass = task.priority === 'critical' ? 'priority-critical' :
+                                  task.priority === 'must' ? 'priority-high' :
+                                  task.priority === 'important' ? 'priority-normal' : 'priority-low';
+
+            const tags = task.tags || [];
+            const tagsHtml = tags.map(tag => {
+                const tagClass = tag === 'must' || tag === 'critical' ? 'must' :
+                                 tag === 'important' ? 'important' :
+                                 tag === 'recommended' || tag === 'nice' ? 'recommended' :
+                                 tag === 'seasonal' ? 'seasonal' : '';
+                return `<span class="tag ${tagClass}">${tag}</span>`;
+            }).join('');
+
             return `
-                <div class="task" id="task-${task.id}">
-                    <input type="checkbox" onchange="completeTask(${task.id})">
-                    <div class="task-info">
-                        <div class="task-name">${task.name}</div>
-                        <div class="task-detail">${task.detail || ''}</div>
+                <div class="task-card ${priorityClass}" onclick="showTaskDetail(${task.id})">
+                    <div class="task-header">
+                        <div class="task-title">${task.name}</div>
+                        <span class="task-status ${statusClass}">${statusText}</span>
                     </div>
-                    <span class="task-due ${dueClass}">${dueText}</span>
+                    <div class="task-meta">
+                        <div class="task-meta-item">
+                            <span>${systemIcons[task.system] || '📋'}</span>
+                            ${task.system.toUpperCase()}
+                        </div>
+                        <div class="task-meta-item">
+                            <span>⏱️</span>
+                            ${task.time || '15 min'}
+                        </div>
+                        <div class="task-meta-item">
+                            <span>💰</span>
+                            ${task.cost || 'Gratis'}
+                        </div>
+                    </div>
+                    ${task.why ? `<div class="task-description">${task.why.substring(0, 100)}...</div>` : ''}
+                    <div class="task-tags">${tagsHtml}</div>
+                    <div class="task-actions" onclick="event.stopPropagation()">
+                        <button class="task-btn secondary" onclick="postponeTaskById(${task.id})">Posponer</button>
+                        <button class="task-btn primary" onclick="completeTaskById(${task.id})">✓ Hecho</button>
+                    </div>
                 </div>
             `;
         }
 
-        function completeTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.completed = true;
-                task.completedDate = new Date().toISOString();
-                saveTasks();
-                
-                setTimeout(() => {
-                    render();
-                }, 300);
-            }
+        function renderSystems() {
+            const container = document.getElementById('systems-list');
+            container.innerHTML = systems.map(system => `
+                <div class="system-card">
+                    <div class="system-header">
+                        <div class="system-icon ${system.icon}">${getSystemEmoji(system.icon)}</div>
+                        <div class="system-info">
+                            <h3>${system.name}</h3>
+                            <p>${system.tasks} tareas programadas</p>
+                        </div>
+                    </div>
+                    <div class="system-status">
+                        <div class="system-status-item">
+                            <div class="system-status-value">${system.status === 'good' ? '✓' : '!'}</div>
+                            <div class="system-status-label">Estado</div>
+                        </div>
+                        <div class="system-status-item">
+                            <div class="system-status-value">${system.tasks}</div>
+                            <div class="system-status-label">Tareas</div>
+                        </div>
+                        <div class="system-status-item">
+                            <div class="system-status-value">--</div>
+                            <div class="system-status-label">Último</div>
+                        </div>
+                    </div>
+                    <dl class="system-details">
+                        ${Object.entries(system.details).map(([key, value]) => `
+                            <dt>${key}</dt>
+                            <dd>${value}</dd>
+                        `).join('')}
+                    </dl>
+                </div>
+            `).join('');
         }
 
-        function openModal() {
-            document.getElementById('modal').classList.add('active');
-            document.getElementById('taskDate').valueAsDate = new Date();
+        function getSystemEmoji(icon) {
+            const emojis = {
+                hvac: '🌡️',
+                plumbing: '🚿',
+                electrical: '⚡',
+                exterior: '🏡',
+                interior: '🛋️',
+                safety: '🔒',
+                appliances: '🔌'
+            };
+            return emojis[icon] || '🏠';
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
-
-        function saveTask() {
-            const name = document.getElementById('taskName').value.trim();
-            const category = document.getElementById('taskCategory').value;
-            const date = document.getElementById('taskDate').value;
-
-            if (!name || !date) {
-                alert('Completa todos los campos');
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span>📊</span>
+                        <h3>Sin historial aún</h3>
+                        <p>Completa tareas para ver tu historial aquí</p>
+                    </div>
+                `;
                 return;
             }
 
-            tasks.push({
-                id: Date.now(),
-                name: name,
-                category: category,
-                detail: '',
-                dueDate: date,
-                completed: false
+            container.innerHTML = history.slice(0, 20).map(item => {
+                const date = new Date(item.date);
+                return `
+                    <div class="history-item">
+                        <div class="history-date">
+                            <div class="day">${date.getDate()}</div>
+                            <div class="month">${date.toLocaleDateString('es', { month: 'short' })}</div>
+                        </div>
+                        <div class="history-content">
+                            <h4>${item.name}</h4>
+                            <p>${item.system} • ${item.time || 'Tiempo no registrado'}</p>
+                        </div>
+                        ${item.cost ? `
+                            <div class="history-cost">
+                                <div class="amount">${item.cost}</div>
+                                <div class="label">Costo</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('contacts-list');
+            container.innerHTML = contacts.map(contact => `
+                <div class="contact-card">
+                    <div class="contact-header">
+                        <div class="contact-avatar">${contact.name.charAt(0)}</div>
+                        <div class="contact-info">
+                            <h3>${contact.name}</h3>
+                            <p>${contact.type}${contact.phone ? ' • ' + contact.phone : ''}</p>
+                        </div>
+                    </div>
+                    ${contact.notes ? `<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">${contact.notes}</p>` : ''}
+                    <div class="contact-actions">
+                        ${contact.phone ? `<a href="tel:${contact.phone}" class="contact-btn call">📞 Llamar</a>` : ''}
+                        <button class="contact-btn" onclick="editContact(${contact.id})">✏️ Editar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let overdue = 0;
+            let thisWeek = 0;
+            let thisMonth = 0;
+            let completed = history.length;
+
+            tasks.filter(t => !t.completed).forEach(task => {
+                const dueDate = new Date(task.dueDate);
+                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+                if (daysUntil < 0) overdue++;
+                else if (daysUntil <= 7) thisWeek++;
+                else if (daysUntil <= 30) thisMonth++;
             });
 
-            saveTasks();
-            closeModal();
-            render();
-
-            document.getElementById('taskName').value = '';
+            document.getElementById('stat-overdue').textContent = overdue;
+            document.getElementById('stat-soon').textContent = thisWeek;
+            document.getElementById('stat-month').textContent = thisMonth;
+            document.getElementById('stat-done').textContent = completed;
         }
 
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+        // ===== TASK ACTIONS =====
+        function showTaskDetail(taskId) {
+            currentTaskId = taskId;
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('detail-title').textContent = task.name;
+            document.getElementById('detail-why').textContent = task.why || 'No hay descripción disponible.';
+            document.getElementById('detail-frequency').textContent = task.frequency ? `Cada ${task.frequency} días` : 'Una vez';
+            document.getElementById('detail-cost').textContent = task.cost || 'Gratis';
+            document.getElementById('detail-time').textContent = task.time || 'Variable';
+            document.getElementById('detail-difficulty').textContent = task.difficulty || 'DIY';
+            document.getElementById('detail-materials').textContent = task.materials || 'Ninguno especificado';
+            document.getElementById('detail-last').textContent = task.lastCompleted ? 
+                new Date(task.lastCompleted).toLocaleDateString('es') : 'Nunca registrado';
+
+            const stepsContainer = document.getElementById('detail-steps');
+            if (task.steps && task.steps.length) {
+                stepsContainer.innerHTML = task.steps.map((step, i) => `
+                    <li>
+                        <input type="checkbox" id="step-${i}">
+                        <label for="step-${i}">${step}</label>
+                    </li>
+                `).join('');
+            } else {
+                stepsContainer.innerHTML = '<li>No hay pasos definidos</li>';
+            }
+
+            document.getElementById('modal-task-detail').classList.add('active');
         }
 
+        function completeTask() {
+            if (!currentTaskId) return;
+            completeTaskById(currentTaskId);
+            closeModal('modal-task-detail');
+        }
+
+        function completeTaskById(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            // Add to history
+            history.unshift({
+                id: Date.now(),
+                taskId: task.id,
+                name: task.name,
+                system: task.system,
+                date: new Date().toISOString(),
+                cost: task.cost,
+                time: task.time
+            });
+
+            // Update task
+            if (task.frequency && task.frequency > 0) {
+                // Recurring task - set new due date
+                const newDue = new Date();
+                newDue.setDate(newDue.getDate() + task.frequency);
+                task.dueDate = newDue.toISOString().split('T')[0];
+                task.lastCompleted = new Date().toISOString();
+            } else {
+                // One-time task - mark as completed
+                task.completed = true;
+                task.completedDate = new Date().toISOString();
+            }
+
+            saveData();
+            renderAll();
+        }
+
+        function postponeTask() {
+            if (!currentTaskId) return;
+            postponeTaskById(currentTaskId);
+            closeModal('modal-task-detail');
+        }
+
+        function postponeTaskById(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const currentDue = new Date(task.dueDate);
+            currentDue.setDate(currentDue.getDate() + 7);
+            task.dueDate = currentDue.toISOString().split('T')[0];
+
+            saveData();
+            renderAll();
+        }
+
+        // ===== MODAL FUNCTIONS =====
+        function showAddTask() {
+            document.getElementById('modal-add-task').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function selectPriority(element) {
+            document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function saveNewTask() {
+            const name = document.getElementById('new-task-name').value.trim();
+            const system = document.getElementById('new-task-system').value;
+            const date = document.getElementById('new-task-date').value;
+            const repeat = parseInt(document.getElementById('new-task-repeat').value);
+            const notes = document.getElementById('new-task-notes').value.trim();
+            const priority = document.querySelector('.priority-option.selected').dataset.priority;
+
+            if (!name || !date) {
+                alert('Por favor completa el nombre y la fecha');
+                return;
+            }
+
+            const newTask = {
+                id: Date.now(),
+                name,
+                system,
+                priority,
+                frequency: repeat,
+                dueDate: date,
+                why: notes,
+                steps: [],
+                cost: '',
+                time: '',
+                difficulty: 'DIY',
+                materials: '',
+                tags: [priority],
+                completed: false
+            };
+
+            tasks.push(newTask);
+            saveData();
+            renderAll();
+            closeModal('modal-add-task');
+
+            // Clear form
+            document.getElementById('new-task-name').value = '';
+            document.getElementById('new-task-notes').value = '';
+        }
+
+        function showAddContact() {
+            const name = prompt('Nombre del contacto:');
+            if (!name) return;
+            
+            const type = prompt('Tipo (HVAC, Plomería, Eléctrico, etc.):');
+            const phone = prompt('Teléfono:');
+            const notes = prompt('Notas:');
+
+            contacts.push({
+                id: Date.now(),
+                name,
+                type: type || 'General',
+                phone: phone || '',
+                notes: notes || ''
+            });
+
+            saveData();
+            renderContacts();
+        }
+
+        function editContact(contactId) {
+            const contact = contacts.find(c => c.id === contactId);
+            if (!contact) return;
+
+            const name = prompt('Nombre:', contact.name);
+            if (!name) return;
+
+            contact.name = name;
+            contact.type = prompt('Tipo:', contact.type) || contact.type;
+            contact.phone = prompt('Teléfono:', contact.phone) || contact.phone;
+            contact.notes = prompt('Notas:', contact.notes) || contact.notes;
+
+            saveData();
+            renderContacts();
+        }
+
+        function showSearch() {
+            const query = prompt('Buscar tarea:');
+            if (!query) return;
+
+            const results = tasks.filter(t => 
+                t.name.toLowerCase().includes(query.toLowerCase()) ||
+                (t.why && t.why.toLowerCase().includes(query.toLowerCase()))
+            );
+
+            if (results.length === 0) {
+                alert('No se encontraron tareas');
+            } else {
+                alert(`Encontradas ${results.length} tareas:\n\n${results.map(t => '• ' + t.name).join('\n')}`);
+            }
+        }
+
+        function showNotifications() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const urgent = tasks.filter(t => {
+                if (t.completed) return false;
+                const due = new Date(t.dueDate);
+                const days = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+                return days <= 3;
+            });
+
+            if (urgent.length === 0) {
+                alert('✅ No hay notificaciones urgentes');
+            } else {
+                alert(`⚠️ Tareas urgentes:\n\n${urgent.map(t => '• ' + t.name).join('\n')}`);
+            }
+        }
+
+        // Initialize app
         init();
     </script>
 </body>
