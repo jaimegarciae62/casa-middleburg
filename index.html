@@ -4,169 +4,409 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casa Middleburg</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c5530">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        header h1 {
+            font-size: 2rem;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+        header p {
+            color: #888;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .section h2 {
+            font-size: 1rem;
+            color: #4ade80;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .task.done {
+            opacity: 0.5;
+        }
+        .task input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #4ade80;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .task-detail {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .task-due {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #4ade80;
+            color: #000;
+            font-weight: 600;
+        }
+        .task-due.soon {
+            background: #fbbf24;
+        }
+        .task-due.overdue {
+            background: #ef4444;
+            color: #fff;
+        }
+        .add-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #333;
+            border-radius: 10px;
+            background: transparent;
+            color: #888;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .add-btn:hover {
+            border-color: #4ade80;
+            color: #4ade80;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a1a2e;
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #4ade80;
+        }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #2d3748;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-btns button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn-save {
+            background: #4ade80;
+            color: #000;
+            font-weight: bold;
+        }
+        .btn-cancel {
+            background: #333;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🏠 Casa Middleburg</h1>
-        <nav>
-            <button class="nav-btn active" data-section="tareas">Tareas</button>
-            <button class="nav-btn" data-section="calendario">Calendario</button>
-            <button class="nav-btn" data-section="historial">Historial</button>
-            <button class="nav-btn" data-section="proveedores">Proveedores</button>
-        </nav>
-    </header>
+    <div class="container">
+        <header>
+            <h1>🏠 Casa Middleburg</h1>
+            <p>Mantenimiento inteligente</p>
+        </header>
 
-    <main>
-        <section id="tareas" class="section active">
-            <div class="section-header">
-                <h2>Tareas de Mantenimiento</h2>
-                <button id="btn-nueva-tarea" class="btn-primary">+ Nueva Tarea</button>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num" id="pending">0</div>
+                <div class="stat-label">Pendientes</div>
             </div>
-            <div class="filtros">
-                <button class="filtro active" data-filtro="todas">Todas</button>
-                <button class="filtro" data-filtro="pendientes">Pendientes</button>
-                <button class="filtro" data-filtro="vencidas">Vencidas</button>
+            <div class="stat">
+                <div class="stat-num" id="done">0</div>
+                <div class="stat-label">Completadas</div>
             </div>
-            <div id="lista-tareas"></div>
-        </section>
+            <div class="stat">
+                <div class="stat-num" id="streak">0</div>
+                <div class="stat-label">Racha días</div>
+            </div>
+        </div>
 
-        <section id="calendario" class="section">
-            <h2>Calendario</h2>
-            <div id="calendario-container">
-                <div class="calendario-header">
-                    <button id="mes-anterior" class="btn-nav">←</button>
-                    <h3 id="mes-actual"></h3>
-                    <button id="mes-siguiente" class="btn-nav">→</button>
-                </div>
-                <div id="calendario-grid"></div>
-            </div>
-            <div id="tareas-dia">
-                <h4>Tareas del día seleccionado</h4>
-                <div id="lista-tareas-dia"></div>
-            </div>
-        </section>
+        <div class="section">
+            <h2>🔥 Esta semana</h2>
+            <div id="urgent"></div>
+        </div>
 
-        <section id="historial" class="section">
-            <div class="section-header">
-                <h2>Historial de Mantenimiento</h2>
-                <div class="historial-stats" id="stats-costos"></div>
-            </div>
-            <div id="lista-historial"></div>
-        </section>
+        <div class="section">
+            <h2>📅 Este mes</h2>
+            <div id="monthly"></div>
+        </div>
 
-        <section id="proveedores" class="section">
-            <div class="section-header">
-                <h2>Proveedores</h2>
-                <button id="btn-nuevo-proveedor" class="btn-primary">+ Nuevo Proveedor</button>
-            </div>
-            <div id="lista-proveedores"></div>
-        </section>
-    </main>
+        <div class="section">
+            <h2>📋 Próximamente</h2>
+            <div id="later"></div>
+        </div>
 
-    <div id="modal-tarea" class="modal">
+        <button class="add-btn" onclick="openModal()">+ Agregar tarea</button>
+    </div>
+
+    <div class="modal" id="modal">
         <div class="modal-content">
-            <span class="cerrar">&times;</span>
-            <h3 id="modal-tarea-titulo">Nueva Tarea</h3>
-            <form id="form-tarea">
-                <input type="hidden" id="tarea-id">
-                <label for="tarea-nombre">Nombre de la tarea</label>
-                <input type="text" id="tarea-nombre" required>
-                <label for="tarea-sistema">Sistema</label>
-                <select id="tarea-sistema" required>
-                    <option value="">Seleccionar...</option>
-                    <option value="HVAC">HVAC</option>
-                    <option value="Pozo de agua">Pozo de agua</option>
-                    <option value="Septico">Séptico / Drainfield</option>
-                    <option value="Filtro agua">Filtro de agua</option>
-                    <option value="Chimenea">Chimenea</option>
-                    <option value="Techo">Techo</option>
-                    <option value="Electrodomesticos">Electrodomésticos</option>
-                    <option value="Detectores">Detectores de humo</option>
-                    <option value="General">General</option>
-                </select>
-                <label for="tarea-frecuencia">Frecuencia</label>
-                <select id="tarea-frecuencia" required>
-                    <option value="">Seleccionar...</option>
-                    <option value="mensual">Mensual</option>
-                    <option value="trimestral">Trimestral</option>
-                    <option value="semestral">Semestral</option>
-                    <option value="anual">Anual</option>
-                    <option value="unica">Única vez</option>
-                </select>
-                <label for="tarea-fecha">Próxima fecha</label>
-                <input type="date" id="tarea-fecha" required>
-                <label for="tarea-costo">Costo estimado ($)</label>
-                <input type="number" id="tarea-costo" step="0.01" value="0">
-                <label for="tarea-notas">Notas</label>
-                <textarea id="tarea-notas" rows="3"></textarea>
-                <button type="submit" class="btn-primary">Guardar</button>
-            </form>
+            <h3>Nueva tarea</h3>
+            <input type="text" id="taskName" placeholder="Nombre de la tarea">
+            <select id="taskCategory">
+                <option value="hvac">🌡️ HVAC</option>
+                <option value="plumbing">🚿 Plomería</option>
+                <option value="exterior">🏡 Exterior</option>
+                <option value="interior">🛋️ Interior</option>
+                <option value="safety">🔒 Seguridad</option>
+                <option value="other">📦 Otro</option>
+            </select>
+            <input type="date" id="taskDate">
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveTask()">Guardar</button>
+            </div>
         </div>
     </div>
 
-    <div id="modal-completar" class="modal">
-        <div class="modal-content">
-            <span class="cerrar">&times;</span>
-            <h3>Completar Tarea</h3>
-            <form id="form-completar">
-                <input type="hidden" id="completar-id">
-                <p id="completar-nombre-tarea"></p>
-                <label for="completar-fecha">Fecha realizada</label>
-                <input type="date" id="completar-fecha" required>
-                <label for="completar-costo">Costo real ($)</label>
-                <input type="number" id="completar-costo" step="0.01" required>
-                <label for="completar-proveedor">Proveedor (opcional)</label>
-                <select id="completar-proveedor">
-                    <option value="">Ninguno / Yo mismo</option>
-                </select>
-                <label for="completar-notas">Notas</label>
-                <textarea id="completar-notas" rows="3"></textarea>
-                <button type="submit" class="btn-primary">Marcar como completada</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-proveedor" class="modal">
-        <div class="modal-content">
-            <span class="cerrar">&times;</span>
-            <h3 id="modal-proveedor-titulo">Nuevo Proveedor</h3>
-            <form id="form-proveedor">
-                <input type="hidden" id="proveedor-id">
-                <label for="proveedor-nombre">Nombre</label>
-                <input type="text" id="proveedor-nombre" required>
-                <label for="proveedor-servicio">Servicio</label>
-                <select id="proveedor-servicio" required>
-                    <option value="">Seleccionar...</option>
-                    <option value="HVAC">HVAC</option>
-                    <option value="Plomeria">Plomería</option>
-                    <option value="Septico">Séptico</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Chimenea">Chimenea</option>
-                    <option value="Electrodomesticos">Electrodomésticos</option>
-                    <option value="General">General</option>
-                </select>
-                <label for="proveedor-telefono">Teléfono</label>
-                <input type="tel" id="proveedor-telefono">
-                <label for="proveedor-email">Email</label>
-                <input type="email" id="proveedor-email">
-                <label for="proveedor-notas">Notas</label>
-                <textarea id="proveedor-notas" rows="3"></textarea>
-                <button type="submit" class="btn-primary">Guardar</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+        // Tareas predeterminadas para casa de 1 año en Virginia
+        const defaultTasks = [
+            { id: 1, name: "Cambiar filtro HVAC", category: "hvac", detail: "Filtro 20x25x1", daysInterval: 90, lastDone: null },
+            { id: 2, name: "Revisar detectores de humo", category: "safety", detail: "Probar botón de cada uno", daysInterval: 30, lastDone: null },
+            { id: 3, name: "Limpiar canaletas", category: "exterior", detail: "Antes de otoño e invierno", daysInterval: 180, lastDone: null },
+            { id: 4, name: "Inspeccionar calentador de agua", category: "plumbing", detail: "Revisar válvula y sedimentos", daysInterval: 365, lastDone: null },
+            { id: 5, name: "Revisar sellado de ventanas", category: "exterior", detail: "Buscar corrientes de aire", daysInterval: 365, lastDone: null },
+            { id: 6, name: "Limpiar refrigerador - serpentines", category: "interior", detail: "Parte trasera", daysInterval: 180, lastDone: null },
+            { id: 7, name: "Revisar extintores", category: "safety", detail: "Verificar presión", daysInterval: 365, lastDone: null },
+            { id: 8, name: "Tratar deck/patio", category: "exterior", detail: "Sellador para madera", daysInterval: 365, lastDone: null },
+            { id: 9, name: "Servicio HVAC profesional", category: "hvac", detail: "Antes de verano", daysInterval: 365, lastDone: null },
+            { id: 10, name: "Drenar calentador de agua", category: "plumbing", detail: "Remover sedimentos", daysInterval: 365, lastDone: null },
+        ];
+
+        function init() {
+            if (tasks.length === 0) {
+                tasks = defaultTasks.map(t => ({
+                    ...t,
+                    dueDate: calculateDueDate(t.daysInterval)
+                }));
+                saveTasks();
+            }
+            render();
         }
+
+        function calculateDueDate(days) {
+            const date = new Date();
+            date.setDate(date.getDate() + Math.floor(Math.random() * days));
+            return date.toISOString().split('T')[0];
+        }
+
+        function getDaysUntil(dateStr) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const due = new Date(dateStr);
+            return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+        }
+
+        function render() {
+            const urgent = document.getElementById('urgent');
+            const monthly = document.getElementById('monthly');
+            const later = document.getElementById('later');
+
+            urgent.innerHTML = '';
+            monthly.innerHTML = '';
+            later.innerHTML = '';
+
+            let pendingCount = 0;
+            let doneCount = 0;
+
+            tasks.forEach(task => {
+                if (task.completed) {
+                    doneCount++;
+                    return;
+                }
+                pendingCount++;
+
+                const days = getDaysUntil(task.dueDate);
+                const html = createTaskHTML(task, days);
+
+                if (days <= 7) {
+                    urgent.innerHTML += html;
+                } else if (days <= 30) {
+                    monthly.innerHTML += html;
+                } else {
+                    later.innerHTML += html;
+                }
+            });
+
+            document.getElementById('pending').textContent = pendingCount;
+            document.getElementById('done').textContent = doneCount;
+
+            if (!urgent.innerHTML) urgent.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">✅ ¡Todo al día!</p>';
+            if (!monthly.innerHTML) monthly.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Nada pendiente</p>';
+            if (!later.innerHTML) later.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Nada pendiente</p>';
+        }
+
+        function createTaskHTML(task, days) {
+            let dueClass = '';
+            let dueText = '';
+
+            if (days < 0) {
+                dueClass = 'overdue';
+                dueText = 'Vencida';
+            } else if (days === 0) {
+                dueClass = 'overdue';
+                dueText = 'Hoy';
+            } else if (days <= 7) {
+                dueClass = 'soon';
+                dueText = days + ' días';
+            } else {
+                dueText = days + ' días';
+            }
+
+            return `
+                <div class="task" id="task-${task.id}">
+                    <input type="checkbox" onchange="completeTask(${task.id})">
+                    <div class="task-info">
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-detail">${task.detail || ''}</div>
+                    </div>
+                    <span class="task-due ${dueClass}">${dueText}</span>
+                </div>
+            `;
+        }
+
+        function completeTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = true;
+                task.completedDate = new Date().toISOString();
+                saveTasks();
+                
+                setTimeout(() => {
+                    render();
+                }, 300);
+            }
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('taskDate').valueAsDate = new Date();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function saveTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const category = document.getElementById('taskCategory').value;
+            const date = document.getElementById('taskDate').value;
+
+            if (!name || !date) {
+                alert('Completa todos los campos');
+                return;
+            }
+
+            tasks.push({
+                id: Date.now(),
+                name: name,
+                category: category,
+                detail: '',
+                dueDate: date,
+                completed: false
+            });
+
+            saveTasks();
+            closeModal();
+            render();
+
+            document.getElementById('taskName').value = '';
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        init();
     </script>
 </body>
 </html>
